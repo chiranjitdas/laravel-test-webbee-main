@@ -4,6 +4,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\MenuItem;
+use Response;
 use Illuminate\Routing\Controller as BaseController;
 
 class MenuController extends BaseController
@@ -95,6 +96,22 @@ class MenuController extends BaseController
      */
 
     public function getMenuItems() {
-        throw new \Exception('implement in coding task 3');
+        $menu_items = MenuItem::get();
+        $data = $this->menu_array($menu_items);
+        return Response::json($data,200);
+        // throw new \Exception('implement in coding task 3');
+    }
+    public function menu_array($data,$parent=-1) {
+        $res=array();
+        foreach($data as $key=>$e) {
+            if($e['parent_id']==$parent || ($parent==-1 && $e['parent_id']==0)) {
+                $res[$e['id']] = $e;
+                $sub=$this->menu_array($data, $e['id']);
+                if($sub){
+                    $res[$e['id']]['children'] = $sub;
+                }
+            }
+        }
+        return $res;
     }
 }
